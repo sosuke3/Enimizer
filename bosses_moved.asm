@@ -71,7 +71,7 @@ db $00, $05, $09, $CE
 
 
 ;On Room Transition -> Move Sprite depending on the room loaded
-org $028979 ;  JSL Dungeon_ResetSprites ; REPLACE THAT (Sprite initialization) original jsl : $09C114
+org $028979 ;  JSL Dungeon_ResetSprites ; REPLACE THAT (Sprite initialization) original jsl : $09C114 ; <-- 519 : Bank02.asm : JSL Dungeon_ResetSprites
 JSL boss_move
 org $028C16 ;  JSL Dungeon_ResetSprites ; REPLACE THAT (Sprite initialization) original jsl : $09C114
 JSL boss_move
@@ -89,8 +89,8 @@ org $0DB6BE
 db $00
 
 
-org $1E9518
-JSL new_kholdstare_code;Write new gfx in the vram
+org $1E9518 ; Sprite_Kholdstare - sprite_kholdstare.asm(152)
+JSL new_kholdstare_code ;Write new gfx in the vram
 
 org $1DAD67 
 JSL new_trinexx_code
@@ -101,9 +101,23 @@ boss_move:
 {
     ; TODO: should probably double check that we don't need to preserve registers (A,X)...
 
-	JSL $09C114         ; Restore the dungeon_resetsprites
+    ; Call what we overwrote and restore the dungeon_resetsprites
+	JSL $09C114         ; JSL Dungeon_ResetSprites : Bank09.asm(822)
+
 	LDA $A0             ; load room index (low byte)
 	LDX $A1             ; 				  (high byte)
+
+    LDY $A2             ; load previous room index (low byte)
+;warnpc $0
+    CMP #188 : BNE +    ; Room below boss room in TT
+    LDA $A2 : CMP #172 : BNE + ; TT boss room
+        ;Your Code Here
+        JSL RestoreGfxBlock
+    	;LDA $A0             ; load room index (low byte)
+        BRL .return
+    +
+        ;%DMA_FROM_RAM_TO_VRAM(1,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+
 
 	CMP #7   : BNE +    ; Is is Hera Tower Boss Room
 	CPX #$00 : BNE +
@@ -253,10 +267,72 @@ gibdo_drop_key:
     RTL
 }
 
+
+!VRAM_HIGH = #$34 ; dest to write shell graphics / src to save previously loaded tiles into wram
+!VRAM_LOW  = #$00
+
+; 7F7667[0x6719] -   free ram
+!SAVE_VRAM_TO_BANK = #$7F
+!SAVE_VRAM_TO_HIGH = #$76
+!SAVE_VRAM_TO_LOW  = #$67
+
+!ROM_SRC_BANK = #$24
+!ROM_SRC_HIGH = #$B0
+!ROM_SRC_LOW  = #$00
+
+!LENGTH_HIGH  = #$10
+!LENGTH_LOW   = #$00
+
+
 WriteGfxBlock:
 {
-    ;DMA_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_HIGH,LENGTH_LOW)
-    %DMA_VRAM(#$34,#$00,#$24,#$B0,#$00,#$10,#$00)
+    ;DMA_FROM_VRAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGTH_HIGH,LENGTH_LOW)
+    %DMA_FROM_VRAM_TO_RAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+
+    ;DMA_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_HIGH,LENGTH_LOW)
+    %DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!ROM_SRC_BANK,!ROM_SRC_HIGH,!ROM_SRC_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+    RTL
+}
+
+;warnpc $0
+;$2494b2
+RestoreGfxBlock:
+{
+    ;DMA_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_HIGH,LENGTH_LOW)
+    ;%DMA_FROM_RAM_TO_VRAM(0,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+    %DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+
+    ; LDX.w #$3400 : STX $2116
+    ; LDA.b #$80 : STA $2115
+    ; LDX.w #$1801 : STX $4300
+    ; LDX.w #$7667 : STX $4302
+    ; LDA.b #$7F   : STA $4304
+    ; LDX.w #$1000 : STX $4305
+    ; LDA.b #$01 : STA $420B
+    ; LDA.b #$80 : STA $2100
+
+    ; ; *$10B7-$10E2 JUMP LOCATION
+    ; NMI_UpdateStarTiles:
+    ; {
+    ;     ; ( transfers 0x40 bytes from $7F0000 to vram $3ED0 (word)        
+    ;     REP #$10
+    ;     ; vram target address is $3ED0 (word)
+    ;     LDX.w #$3ED0 : STX $2116
+    ;     ; increment vram address on writes to $2119
+    ;     LDA.b #$80 : STA $2115
+    ;     ; base register is $2118, two registers write once ($2118 / $2119)
+    ;     LDX.w #$1801 : STX $4300
+    ;     ; source address is $7F0000
+    ;     LDX.w #$0000 : STX $4302
+    ;     LDA.b #$7F   : STA $4304
+    ;     ; write 0x40 bytes
+    ;     LDX.w #$0040 : STX $4305
+    ;     ; transfer data on channel 1
+    ;     LDA.b #$01 : STA $420B
+    ;     REP #$10
+    ;     RTS
+    ; }
+
     RTL
 }
 
@@ -266,7 +342,7 @@ new_kholdstare_code:
     LDA #$01 : STA $0CBA
     JSL WriteGfxBlock;
     .already_iced
-    JSL $0DD97F
+    JSL $0DD97F ; Bank0D.asm(1645) - address is different for JP rom!!!
     RTL
 }
 
@@ -276,3 +352,5 @@ new_trinexx_code:
     JSL WriteGfxBlock;
     RTL
 }
+
+warnpc $24B000  ; make sure we don't run into our shell graphics data
