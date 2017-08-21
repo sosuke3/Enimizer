@@ -27,8 +27,8 @@ macro DMA_FROM_ROM_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_H
         LDA !DMA0_SIZE_LOW_REG  : PHA
         LDA !DMA0_SIZE_HIGH_REG : PHA
 		; -------------------------------------------------------------------------------
+        ;STZ !DMA_ENABLE_REG
 
-		!FORCE_VBLANK           ; blank screen
 		LDA #$80   : STA !VMAIN_REG          ; increment after writing $2119
 
         ; write to vram at $<VRAM_HIGH><VRAM_LOW>
@@ -58,6 +58,7 @@ macro DMA_FROM_ROM_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_H
 		LDA <LENGTH_LOW>  : STA !DMA0_SIZE_LOW_REG   ; length low byte
 		LDA <LENGTH_HIGH> : STA !DMA0_SIZE_HIGH_REG   ; length high byte
 
+		!FORCE_VBLANK           ; blank screen
         ; start DMA on channel 0
 		LDA #$01                        ; channel select bitmask
 		STA !DMA_ENABLE_REG
@@ -88,6 +89,7 @@ macro DMA_FROM_VRAM_TO_RAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGT
         LDA !DMA0_SIZE_LOW_REG  : PHA
         LDA !DMA0_SIZE_HIGH_REG : PHA
 		; -------------------------------------------------------------------------------
+        STZ !DMA_ENABLE_REG
 
 		LDA #$80   : STA !VMAIN_REG          ; increment after reading $213A
 
@@ -120,8 +122,9 @@ macro DMA_FROM_VRAM_TO_RAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGT
 		!FORCE_VBLANK           ; blank screen
 
         ; see snes developer manual book 1 : pg 2-27-21
-        LDA.b $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
-        LDA.b $213A ; need dummy read because reasons
+        ;LDA.b $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
+        ;LDA.b $213A ; need dummy read because reasons
+        LDA.w $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
 
         ; start DMA on channel 0
 		LDA #$01                        ; channel select bitmask
