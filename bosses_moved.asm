@@ -102,21 +102,24 @@ boss_move:
     ; TODO: should probably double check that we don't need to preserve registers (A,X)...
 
     ; Call what we overwrote and restore the dungeon_resetsprites
+;warnpc $0
+;$249210
 	JSL $09C114         ; JSL Dungeon_ResetSprites : Bank09.asm(822)
-
+;warnpc $0
+;$249214
 	LDA $A0             ; load room index (low byte)
 	LDX $A1             ; 				  (high byte)
 
-;     LDY $A2             ; load previous room index (low byte)
-; ;warnpc $0
-;     CMP #188 : BNE +    ; Room below boss room in TT
-;     LDA $A2 : CMP #172 : BNE + ; TT boss room
-;         ;Your Code Here
-;         ;JSL RestoreGfxBlock
-;     	;LDA $A0             ; load room index (low byte)
-;         BRL .return
-;     +
-;         ;%DMA_FROM_RAM_TO_VRAM(1,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+    LDY $A2             ; load previous room index (low byte)
+;warnpc $0
+    CMP #188 : BNE +    ; Room below boss room in TT
+    LDA $A2 : CMP #172 : BNE + ; TT boss room
+        ;Your Code Here
+        JSL RestoreGfxBlock
+    	;LDA $A0             ; load room index (low byte)
+        BRL .return
+    +
+        ;%DMA_FROM_RAM_TO_VRAM(1,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
 
 
 	CMP #7   : BNE +    ; Is is Hera Tower Boss Room
@@ -272,25 +275,31 @@ gibdo_drop_key:
 !VRAM_LOW  = #$00
 
 ; 7F7667[0x6719] -   free ram
-!SAVE_VRAM_TO_BANK = #$7F
-!SAVE_VRAM_TO_HIGH = #$76
-!SAVE_VRAM_TO_LOW  = #$67
+!SAVE_VRAM_TO_BANK = $7F
+!SAVE_VRAM_TO_HIGH = $77
+!SAVE_VRAM_TO_LOW  = $00
 
-!ROM_SRC_BANK = #$24
-!ROM_SRC_HIGH = #$B0
-!ROM_SRC_LOW  = #$00
+!ROM_SRC_BANK = $24
+!ROM_SRC_HIGH = $B0
+!ROM_SRC_LOW  = $00
 
-!LENGTH_HIGH  = #$10
-!LENGTH_LOW   = #$00
+!LENGTH_HIGH  = $10
+!LENGTH_LOW   = $00
 
 
 WriteGfxBlock:
 {
+    SEI
+;warnpc $0
+;$2493c2
     ;DMA_FROM_VRAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGTH_HIGH,LENGTH_LOW)
     %DMA_FROM_VRAM_TO_RAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
 
     ;DMA_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_HIGH,LENGTH_LOW)
     %DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!ROM_SRC_BANK,!ROM_SRC_HIGH,!ROM_SRC_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+
+    CLI
+
     RTL
 }
 
@@ -298,9 +307,16 @@ WriteGfxBlock:
 ;$2494b2
 RestoreGfxBlock:
 {
+    STA $FFFFFF
+;warnpc $0
+;$2494d2
+    SEI
     ;DMA_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_HIGH,LENGTH_LOW)
-    ;%DMA_FROM_RAM_TO_VRAM(0,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
-    %DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+    ;%DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+    %DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,#$02,!LENGTH_HIGH,!LENGTH_LOW)
+
+    CLI
+
 
     ; LDX.w #$3400 : STX $2116 ; set dest address
     ; LDA.b #$80   : STA $2115 ; set increment after accessing $2119
@@ -391,16 +407,24 @@ RestoreGfxBlock:
 
 new_kholdstare_code:
 {
-    LDA $0CBA : BNE .already_iced
-    LDA #$01 : STA $0CBA
-    JSL WriteGfxBlock;
-    .already_iced
-    JSL $0DD97F ; Bank0D.asm(1645) - address is different for JP rom!!!
+;warnpc $0
+;$249556
+	;LDA $A0             ; load room index (low byte)
+	;LDX $A1             ; 				  (high byte)
+    ;CMP #188 : BEQ +    ;  south of boss room in TT, so we left, and don't want to be running this!
+        LDA $0CBA : BNE .already_iced
+        LDA #$01 : STA $0CBA
+        JSL WriteGfxBlock;
+        .already_iced
+        JSL $0DD97F ; Bank0D.asm(1645) - address is different for JP rom!!!
+    ;+
     RTL
 }
 
 new_trinexx_code:
 {
+;warnpc $0
+;$249569
     LDA.b #$03 : STA $0DC0, X
     JSL WriteGfxBlock;
     RTL

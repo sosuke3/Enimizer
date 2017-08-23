@@ -30,40 +30,46 @@ macro DMA_FROM_ROM_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_H
 		; -------------------------------------------------------------------------------
         ;STZ !DMA_ENABLE_REG
 
-		LDA #$80   : STA !VMAIN_REG          ; increment after writing $2119
+		LDA #$80   : STA $2115 ;!VMAIN_REG          ; increment after writing $2119
 
         ; write to vram at $<VRAM_HIGH><VRAM_LOW>
-		LDA <VRAM_LOW>  : STA !VRAM_LOW_REG  ; Set VRAM destination address low byte
-		LDA <VRAM_HIGH> : STA !VRAM_HIGH_REG ; Set VRAM destination address high byte
+		LDA #<VRAM_LOW>  : STA $2116 ;!VRAM_LOW_REG  ; Set VRAM destination address low byte
+		LDA #<VRAM_HIGH> : STA $2117 ;!VRAM_HIGH_REG ; Set VRAM destination address high byte
 		
         ; Set DMA0 to write a word at a time. (low bit=1)
         ; Set DMA0 to copy TO video memory (high bit=0)
 		LDA #$01
-		STA !DMA0_CONTROL_REG
+		STA $4300 ;!DMA0_CONTROL_REG
 
         ; Write to $2118 & $2119 - VRAM Data Write Registers (Low) & VRAM Data Write Registers (High)
         ; setting word write mode on DMA0_CONTROL_REG causes a write to $2118 and then $2119
         ; $21xx is assumed
-		LDA !VRAM_WRITE_REG
-		STA !DMA0_DEST_REG
+		LDA #$18
+		STA $4301 ;!DMA0_DEST_REG
 		
 		; Read from $<SRC_BANK>:<SRC_HIGH><SRC_LOW>.
-		LDA <SRC_LOW>
-		STA !DMA0_SRC_LOW_REG           ; set src address low byte
-		LDA <SRC_HIGH>
-		STA !DMA0_SRC_HIGH_REG          ; set src address high byte
-		LDA <SRC_BANK>
-		STA !DMA0_SRC_BANK_REG          ; set src address bank byte
+		LDA #<SRC_LOW>
+		STA $4302 ;!DMA0_SRC_LOW_REG           ; set src address low byte
+		LDA #<SRC_HIGH>
+		STA $4303 ;!DMA0_SRC_HIGH_REG          ; set src address high byte
+		LDA #<SRC_BANK>
+		STA $4304 ;!DMA0_SRC_BANK_REG          ; set src address bank byte
 
 		; total bytes to copy: #$<LENGTH_HIGH><LENGTH_LOW> bytes.
-		LDA <LENGTH_LOW>  : STA !DMA0_SIZE_LOW_REG   ; length low byte
-		LDA <LENGTH_HIGH> : STA !DMA0_SIZE_HIGH_REG   ; length high byte
+		LDA #<LENGTH_LOW>  : STA $4305 ;!DMA0_SIZE_LOW_REG   ; length low byte
+		LDA #<LENGTH_HIGH> : STA $4306 ;!DMA0_SIZE_HIGH_REG   ; length high byte
 
-		!FORCE_VBLANK           ; blank screen
+        LDA $2100 : PHA
+
+		LDA.b #$80 : STA $2100 ;!FORCE_VBLANK           ; blank screen
         ; start DMA on channel 0
 		LDA #$01                        ; channel select bitmask
-		STA !DMA_ENABLE_REG
+		STA $420B ;!DMA_ENABLE_REG
+
+        STZ $420B ;!DMA_ENABLE_REG ; clear it for fun
 		
+        PLA : STA $2100
+
 		; --- restore DMA registers -----------------------------------------------------
         PLA : STA !DMA0_SIZE_HIGH_REG
         PLA : STA !DMA0_SIZE_LOW_REG
@@ -90,47 +96,82 @@ macro DMA_FROM_VRAM_TO_RAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGT
         LDA !DMA0_SIZE_LOW_REG  : PHA
         LDA !DMA0_SIZE_HIGH_REG : PHA
 		; -------------------------------------------------------------------------------
-        STZ !DMA_ENABLE_REG
+        ;STZ !DMA_ENABLE_REG
 
-		LDA #$80   : STA !VMAIN_REG          ; increment after reading $213A
+		LDA #$80   : STA $2115 ;!VMAIN_REG          ;increment after reading $213A
 
         ; write to vram at $<VRAM_HIGH><VRAM_LOW>
-		LDA <VRAM_LOW>  : STA !VRAM_LOW_REG  ; Set VRAM source address low byte
-		LDA <VRAM_HIGH> : STA !VRAM_HIGH_REG ; Set VRAM source address high byte
+		LDA #<VRAM_LOW>  : STA $2116 ;!VRAM_LOW_REG  ; Set VRAM source address low byte
+		LDA #<VRAM_HIGH> : STA $2117 ;!VRAM_HIGH_REG ; Set VRAM source address high byte
 		
         ; Set DMA0 to write a word at a time. (low bit=1)
         ; Set DMA0 to copy FROM video memory (high bit=1)
 		LDA #$81
-		STA !DMA0_CONTROL_REG
+		STA $4300 ;!DMA0_CONTROL_REG
 
         ; Read from $2139 and $213A
         ; $21xx is assumed
-		LDA !VRAM_READ_REG
-		STA !DMA0_DEST_REG
+		LDA #$39
+		STA $4301 ;!DMA0_DEST_REG
 		
 		; Write to $<DEST_BANK>:<DEST_HIGH><DEST_LOW>.
-		LDA <DEST_LOW>
-		STA !DMA0_SRC_LOW_REG           ; set dest address low byte
-		LDA <DEST_HIGH>
-		STA !DMA0_SRC_HIGH_REG          ; set dest address high byte
-		LDA <DEST_BANK>
-		STA !DMA0_SRC_BANK_REG          ; set dest address bank byte
+		LDA #<DEST_LOW>
+		STA $4302 ;!DMA0_SRC_LOW_REG           ; set dest address low byte
+		LDA #<DEST_HIGH>
+		STA $4303 ;!DMA0_SRC_HIGH_REG          ; set dest address high byte
+		LDA #<DEST_BANK>
+		STA $4304 ;!DMA0_SRC_BANK_REG          ; set dest address bank byte
+
+
+        LDA $2100 : PHA
+
+		LDA.b #$80 : STA $2100 ;!FORCE_VBLANK           ; blank screen
+
+; ;-------------------------------------
+; ; let's see if we can do a small one and then redo the big one
+; 		; total bytes to copy: #$<LENGTH_HIGH><LENGTH_LOW> bytes.
+; 		LDA #$10  : STA $4305 ;!DMA0_SIZE_LOW_REG   ; length low byte
+; 		LDA #$00  : STA $4306 ;!DMA0_SIZE_HIGH_REG   ; length high byte
+
+;         ; see snes developer manual book 1 : pg 2-27-21
+;         LDA $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
+;         ;LDA $213A ; need dummy read because reasons
+;         ;LDA.w $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
+;         ;LDA.w $2139 ; let's do 2 for fun
+
+;         ; reset this just in case
+; 		LDA #<DEST_LOW>
+; 		STA $4302 ;!DMA0_SRC_LOW_REG           ; set dest address low byte
+
+;         ; start DMA on channel 0
+; 		LDA #$01                        ; channel select bitmask
+; 		STA $420B ;!DMA_ENABLE_REG
+
+;         STZ $420B ;!DMA_ENABLE_REG ; clear it for fun
+; ;-------------------------------------
+
 
 		; total bytes to copy: #$<LENGTH_HIGH><LENGTH_LOW> bytes.
-		LDA <LENGTH_LOW>  : STA !DMA0_SIZE_LOW_REG   ; length low byte
-		LDA <LENGTH_HIGH> : STA !DMA0_SIZE_HIGH_REG   ; length high byte
-
-		!FORCE_VBLANK           ; blank screen
+		LDA #<LENGTH_LOW>  : STA $4305 ;!DMA0_SIZE_LOW_REG   ; length low byte
+		LDA #<LENGTH_HIGH> : STA $4306 ;!DMA0_SIZE_HIGH_REG   ; length high byte
 
         ; see snes developer manual book 1 : pg 2-27-21
-        ;LDA.b $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
-        ;LDA.b $213A ; need dummy read because reasons
-        LDA.w $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
-        LDA.w $2139 ; let's do 2 for fun
+        LDA.b $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
+        LDA.b $213A ; need dummy read because reasons
+        ;LDA.w $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
+        ;LDA.w $2139 ; let's do 2 for fun
+
+        ; reset this just in case
+		LDA #<DEST_LOW>
+		STA $4302 ;!DMA0_SRC_LOW_REG           ; set dest address low byte
 
         ; start DMA on channel 0
 		LDA #$01                        ; channel select bitmask
-		STA !DMA_ENABLE_REG
+		STA $420B ;!DMA_ENABLE_REG
+
+        STZ $420B ;!DMA_ENABLE_REG ; clear it for fun
+
+        PLA : STA $2100
 		
 		; --- restore DMA registers -----------------------------------------------------
         PLA : STA !DMA0_SIZE_HIGH_REG
