@@ -439,9 +439,9 @@ namespace Enemizer
                     byte[] exportPots = new byte[roomPots.Count * 3];
                     for (int i = 0; i < roomPots.Count; i++)
                     {
-                        ROM_DATA[addr + (i * 3) + 0] = roomPots[i].x;
-                        ROM_DATA[addr + (i * 3) + 1] = roomPots[i].y;
-                        ROM_DATA[addr + (i * 3) + 2] = roomPots[i].id;
+                        WriteToRom(addr + (i * 3) + 0, roomPots[i].x);
+                        WriteToRom(addr + (i * 3) + 1, roomPots[i].y);
+                        WriteToRom(addr + (i * 3) + 2, roomPots[i].id);
                     }
 
 

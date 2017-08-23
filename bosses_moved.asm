@@ -107,16 +107,16 @@ boss_move:
 	LDA $A0             ; load room index (low byte)
 	LDX $A1             ; 				  (high byte)
 
-    LDY $A2             ; load previous room index (low byte)
-;warnpc $0
-    CMP #188 : BNE +    ; Room below boss room in TT
-    LDA $A2 : CMP #172 : BNE + ; TT boss room
-        ;Your Code Here
-        JSL RestoreGfxBlock
-    	;LDA $A0             ; load room index (low byte)
-        BRL .return
-    +
-        ;%DMA_FROM_RAM_TO_VRAM(1,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+;     LDY $A2             ; load previous room index (low byte)
+; ;warnpc $0
+;     CMP #188 : BNE +    ; Room below boss room in TT
+;     LDA $A2 : CMP #172 : BNE + ; TT boss room
+;         ;Your Code Here
+;         ;JSL RestoreGfxBlock
+;     	;LDA $A0             ; load room index (low byte)
+;         BRL .return
+;     +
+;         ;%DMA_FROM_RAM_TO_VRAM(1,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
 
 
 	CMP #7   : BNE +    ; Is is Hera Tower Boss Room
@@ -287,7 +287,7 @@ gibdo_drop_key:
 WriteGfxBlock:
 {
     ;DMA_FROM_VRAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGTH_HIGH,LENGTH_LOW)
-    ;%DMA_FROM_VRAM_TO_RAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+    %DMA_FROM_VRAM_TO_RAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
 
     ;DMA_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_HIGH,LENGTH_LOW)
     %DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!ROM_SRC_BANK,!ROM_SRC_HIGH,!ROM_SRC_LOW,!LENGTH_HIGH,!LENGTH_LOW)
@@ -300,7 +300,7 @@ RestoreGfxBlock:
 {
     ;DMA_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_HIGH,LENGTH_LOW)
     ;%DMA_FROM_RAM_TO_VRAM(0,!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
-    ;%DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
+    %DMA_FROM_ROM_TO_VRAM(!VRAM_HIGH,!VRAM_LOW,!SAVE_VRAM_TO_BANK,!SAVE_VRAM_TO_HIGH,!SAVE_VRAM_TO_LOW,!LENGTH_HIGH,!LENGTH_LOW)
 
     ; LDX.w #$3400 : STX $2116 ; set dest address
     ; LDA.b #$80   : STA $2115 ; set increment after accessing $2119
@@ -336,6 +336,58 @@ RestoreGfxBlock:
 
     RTL
 }
+
+; ;warnpc $0
+; WriteGfxBlock:
+; {
+; 	PHA
+; 		LDA $4300 : PHA ; preserve DMA parameters
+; 		LDA $4301 : PHA ; preserve DMA parameters
+; 		LDA $4302 : PHA ; preserve DMA parameters
+; 		LDA $4303 : PHA ; preserve DMA parameters
+; 		LDA $4304 : PHA ; preserve DMA parameters
+; 		LDA $4305 : PHA ; preserve DMA parameters
+; 		LDA $4306 : PHA ; preserve DMA parameters
+; 		;--------------------------------------------------------------------------------
+; 		LDA.b #$80 : STA $2100
+; 		LDA #$80 : STA $2115
+; 		LDA #$00 : STA $2116 ; Set VRAM address low byte
+; 		LDA #$34 : STA $2117 ; Set VRAM address high byte
+		
+; 		LDA #$01
+; 		STA $4300 ;Make the DMA write one byte to $2118, then $2119. Because the VRAM port is 16-bit.
+
+; 		LDA #$18
+; 		STA $4301 ;Write to $2118 (and $2119).
+		
+; 		LDA #$00
+; 		STA $4302 ;low byte
+; 		LDA #$B0
+; 		STA $4303 ;high byte
+; 		LDA #$24
+; 		STA $4304 ;bank byte
+; 		; Read from $40:2010.
+		
+; 		LDA #$00 : STA $4305 ;low
+; 		LDA #$10 : STA $4306 ;high
+
+; 		;total bytes to copy: #$1000 bytes.
+		
+; 		LDA #$01
+; 		STA $420B ;start DMA
+		
+; 		;--------------------------------------------------------------------------------
+; 		PLA : STA $4306 ; restore DMA parameters
+; 		PLA : STA $4305 ; restore DMA parameters
+; 		PLA : STA $4304 ; restore DMA parameters
+; 		PLA : STA $4303 ; restore DMA parameters
+; 		PLA : STA $4302 ; restore DMA parameters
+; 		PLA : STA $4301 ; restore DMA parameters
+; 		PLA : STA $4300 ; restore DMA parameters
+; 	PLA
+; RTL
+; }
+
 
 new_kholdstare_code:
 {

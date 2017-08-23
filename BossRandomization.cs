@@ -192,7 +192,7 @@ namespace Enemizer
                         }*/
 
 
-            dungeons[12].boss = bosschosed;
+                        dungeons[12].boss = bosschosed;
                         bosses.Remove(bosschosed);
                         //Console.WriteLine("Infinite Trinexxtry");
                     }
@@ -458,19 +458,22 @@ namespace Enemizer
                 //TESTING CODE
                 //TESTING CODE
                 //TESTING CODE
-                /*foreach (DungeonProperties d in dungeons)
+                foreach (DungeonProperties d in dungeons)
                 {
-                    int r = rand.Next(2);
-                    if (r == 0)
+                    //int r = rand.Next(2);
+                    //if (r == 0)
+                    //{
+                    if (d.room == 172)
                     {
                         d.boss = 0;
                     }
-                    if (r == 1)
-                    {
-                        d.boss = 9;
-                    }
+                    //}
+                    //if (r == 1)
+                    //{
+                    //    d.boss = 9;
+                    //}
                    
-                }*/
+                }//*/
                     //TESTING CODE
                     //TESTING CODE
                     //TESTING CODE
@@ -485,54 +488,54 @@ namespace Enemizer
                         spoilerfile.WriteLine(d.name + " : " + bossNames[d.boss].ToString() + "  Drop : " + ROM_DATA[itemsAddress[did]]);
                     }
                     Console.WriteLine(d.name + " : " + bossNames[d.boss].ToString());
-                    ROM_DATA[d.pointerAddr] = bossOrder[d.boss][0];
-                    ROM_DATA[d.pointerAddr + 1] = bossOrder[d.boss][1];
+                    WriteToRom(d.pointerAddr, bossOrder[d.boss][0]);
+                    WriteToRom(d.pointerAddr + 1, bossOrder[d.boss][1]);
                     //Console.WriteLine((d.bossIn).Address.ToString("X6"));
                     /*for (int i = 0; i < (d.bossIn).Pos_array.Length; i++)
                     {
-                        ROM_DATA[(d.bossIn).Address + i] = (d.bossIn).Pos_array[i]; //patch new position of every bosses
+                        WriteToRom((d.bossIn).Address + i, (d.bossIn).Pos_array[i]); //patch new position of every bosses
                     }*/
-                    ROM_DATA[0x120090 + ((d.room * 14) + 3)] = bossGfx[d.boss];
+                    WriteToRom(0x120090 + ((d.room * 14) + 3), bossGfx[d.boss]);
                     //Console.WriteLine(d.bossIn.GetType().ToString());
                     if (d.boss == 9) // trinexx?
                     {
-                        ROM_DATA[0x120090 + ((d.room * 14) + 4)] = 04;
-                        ROM_DATA[0x120090 + ((d.room * 14) + 2)] = 13;
-                        ROM_DATA[0x120090 + ((d.room * 14))] = 0x60;//BG2
+                        WriteToRom(0x120090 + ((d.room * 14) + 4), 04);
+                        WriteToRom(0x120090 + ((d.room * 14) + 2), 13);
+                        WriteToRom(0x120090 + ((d.room * 14)), 0x60);//BG2
 
-                        ROM_DATA[(0xF8000 + (d.room * 3))] = shell_pointers[did][2];
-                        ROM_DATA[(0xF8000 + (d.room * 3)) + 1] = shell_pointers[did][1];
-                        ROM_DATA[(0xF8000 + (d.room * 3)) + 2] = shell_pointers[did][0];
+                        WriteToRom((0xF8000 + (d.room * 3)), shell_pointers[did][2]);
+                        WriteToRom((0xF8000 + (d.room * 3)) + 1, shell_pointers[did][1]);
+                        WriteToRom((0xF8000 + (d.room * 3)) + 2, shell_pointers[did][0]);
 
                         byte[] Pointer = new byte[4];
                         Pointer[0] = ROM_DATA[(0xF8000 + (d.room * 3))];
                         Pointer[1] = ROM_DATA[(0xF8000 + (d.room * 3)) + 1];
                         Pointer[2] = ROM_DATA[(0xF8000 + (d.room * 3)) + 2];
                         int floors_address = snestopc(BitConverter.ToInt32(Pointer, 0));
-                        ROM_DATA[floors_address] = 0xF0;
+                        WriteToRom(floors_address, 0xF0);
                     }
 
                     if (d.boss == 0) // kholdstare
                     {
-                        //ROM_DATA[0x120090 + ((d.room * 14) + 4)] = 04; effect
-                        ROM_DATA[0x120090 + ((d.room * 14) + 4)] = 01;
-                        ROM_DATA[0x120090 + ((d.room * 14) + 2)] = 11;//gfx
-                        ROM_DATA[0x120090 + ((d.room * 14) )] = 0xE0;//BG2
+                        //WriteToRom(0x120090 + ((d.room * 14) + 4), 04); effect
+                        WriteToRom(0x120090 + ((d.room * 14) + 4), 01);
+                        WriteToRom(0x120090 + ((d.room * 14) + 2), 11);//gfx
+                        WriteToRom(0x120090 + ((d.room * 14)), 0xE0);//BG2
                         if (d.room == 200)
                         {
-                            ROM_DATA[0x120090 + ((216 * 14) + 2)] = 11;//gfx
+                            WriteToRom(0x120090 + ((216 * 14) + 2), 11);//gfx
                         }
 
-                        ROM_DATA[(0xF8000 + (d.room * 3))] = shell_pointers[did][2];
-                        ROM_DATA[(0xF8000 + (d.room * 3)) + 1] = shell_pointers[did][1];
-                        ROM_DATA[(0xF8000 + (d.room * 3)) + 2] = shell_pointers[did][0];
+                        WriteToRom((0xF8000 + (d.room * 3)), shell_pointers[did][2]);
+                        WriteToRom((0xF8000 + (d.room * 3)) + 1, shell_pointers[did][1]);
+                        WriteToRom((0xF8000 + (d.room * 3)) + 2, shell_pointers[did][0]);
 
                         byte[] Pointer = new byte[4];
                         Pointer[0] = ROM_DATA[(0xF8000 + (d.room * 3))];
                         Pointer[1] = ROM_DATA[(0xF8000 + (d.room * 3)) + 1];
                         Pointer[2] = ROM_DATA[(0xF8000 + (d.room * 3)) + 2];
                         int floors_address = snestopc(BitConverter.ToInt32(Pointer, 0));
-                        ROM_DATA[floors_address] = 0xF0;
+                        WriteToRom(floors_address, 0xF0);
 
                     }
 
@@ -542,10 +545,10 @@ namespace Enemizer
 
             for (int i = 0; i < 15; i++) //REMOVE BLIND SPAWN CODE
             {
-                ROM_DATA[0xEA081 + i] = 0xEA;
+                WriteToRom(0xEA081 + i, 0xEA);
             }
             //REMOVE MAIDEN IN TT Basement
-            ROM_DATA[0x04DE81] = 0x00;
+            WriteToRom(0x04DE81, 0x00);
             //BYTE 4 of the header of the room trinexx is in must be setted on 04
 
 
@@ -622,11 +625,35 @@ namespace Enemizer
         0x2D, 0xA1, 0xF9, 0xFF, 0xFF, 0xF0, 0xFF, 0x61, 0x18, 0xFF, 0xFF,
         };
 
+        //0x2D, 0xA1, 0xF9 //kholdstare
+
         byte[] room_172_shell = new byte[]
 {
-0xE9, 0x00, 0x88, 0xA4, 0x0D, 0x88, 0xD0, 0x0E, 0xE0, 0x90, 0x0F, 0xE0, 0xE4, 0x10, 0x89, 0xAB,
-0x61, 0xE9, 0xAB, 0x62, 0x88, 0x91, 0xA0, 0x88, 0xE5, 0xA1, 0xE4, 0x91, 0xA2, 0xE4, 0xF5, 0xA3,
-0xFF, 0xFF, 0xAD, 0xA1, 0xF9, 0xB1, 0xA8, 0xFF, 0xFF, 0xFF, 0xF0, 0xFF, 0x81, 0x18, 0xFF, 0xFF,
+        0xE9, 0x00, // floors/data
+        0x88, 0xA4, 0x0D,
+        0x88, 0xD0, 0x0E,
+        0xE0, 0x90, 0x0F,
+        0xE0, 0xE4, 0x10,
+        0x89, 0xAB, 0x61,
+        0xE9, 0xAB, 0x62,
+        0x88, 0x91, 0xA0,
+        0x88, 0xE5, 0xA1,
+        0xE4, 0x91, 0xA2,
+        0xE4, 0xF5, 0xA3,
+        0xFF, 0xFF, // end layer
+        //0xB1, 0xA8, 0xFF, // blind light
+        //0xB1, 0x44, 0xFF, // blind light moved north
+        //B144FF
+        // 0xAD = 10101101
+        // 0xA1 = 10100001
+        // 0xF9 = 11111001
+        0xAD, 0xA1, 0xF9, // kholdstare?
+        0xFF, 0xFF,  // end layer
+        0xF0, 0xFF,  // door layer
+        0x81, 0x18,
+        0xFF, 0xFF, // end
+//      0xFF, 0xFF,                   0xB1, 0xA8, 0xFF, 0xFF, 0xFF, 0xF0, 0xFF, 0x81, 0x18, 0xFF, 0xFF,
+//      0xFF, 0xFF, 0xAD, 0xA1, 0xF9,                   0xFF, 0xFF, 0xF0, 0xFF, 0x81, 0x18, 0xFF, 0xFF,
 
 };
 

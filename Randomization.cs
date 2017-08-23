@@ -104,11 +104,11 @@ namespace Enemizer
                     fsx.Close();
                     for (int i = 0; i < 0x7000; i++)
                     {
-                        ROM_DATA[0x80000 + i] = skin_data[i];
+                        WriteToRom(0x80000 + i, skin_data[i]);
                     }
                     for (int i = 0; i < 0x78; i++)
                     {
-                        ROM_DATA[0x0DD308 + i] = skin_data[0x7000 + i];
+                        WriteToRom(0x0DD308 + i, skin_data[0x7000 + i]);
                     }
 
                 }
@@ -237,13 +237,13 @@ namespace Enemizer
             }
 
             //Remove Trinexx Ice Floor : 
-            ROM_DATA[0x04B37E] = 0xEA;
-            ROM_DATA[0x04B37E+1] = 0xEA;
-            ROM_DATA[0x04B37E+2] = 0xEA;
-            ROM_DATA[0x04B37E+3] = 0xEA;
-            /*ROM_DATA[0x5033 + 0x5E] = 0x24;
-            ROM_DATA[0x5112 + 0x5E] = 0x93;
-            ROM_DATA[0x51F1 + 0x5E] = 0x57;
+            WriteToRom(0x04B37E, 0xEA);
+            WriteToRom(0x04B37E +1, 0xEA);
+            WriteToRom(0x04B37E +2, 0xEA);
+            WriteToRom(0x04B37E +3, 0xEA);
+            /*WriteToRom(0x5033 + 0x5E, 0x24);
+            WriteToRom(0x5112 + 0x5E, 0x93);
+            WriteToRom(0x51F1 + 0x5E, 0x57);
 
             FileStream fsxx = new FileStream("weapons/mace.bin", FileMode.Open, FileAccess.Read);
             byte[] weapon_data = new byte[fsxx.Length];
@@ -251,7 +251,7 @@ namespace Enemizer
             fsxx.Close();
             for (int i = 0; i < (int)weapon_data.Length; i++)
             {
-                ROM_DATA[0x0121357 + i] = weapon_data[i];
+                WriteToRom(0x0121357 + i, weapon_data[i]);
             }*/
 
             FileStream fs = new FileStream("Enemizer " +Version.CurrentVersion+" - "+Path.GetFileName(filename), FileMode.OpenOrCreate, FileAccess.Write);
@@ -474,7 +474,7 @@ namespace Enemizer
 
             for (int i = 0;i<statis_sprites.Length;i++)
             {
-                ROM_DATA[0x6B44C + statis_sprites[i]] = (byte)(original_statis_sprite[statis_sprites[i]] | 0x40);
+                WriteToRom(0x6B44C + statis_sprites[i], (byte)(original_statis_sprite[statis_sprites[i]] | 0x40));
 
 
             }
@@ -489,10 +489,10 @@ namespace Enemizer
             {
                 if (random_sprite_group[i].Length != 0)
                 {
-                    ROM_DATA[0x05C97 + (i * 4)] = random_sprite_group[i][0];
-                    ROM_DATA[0x05C97 + (i * 4) + 1] = random_sprite_group[i][1];
-                    ROM_DATA[0x05C97 + (i * 4) + 2] = random_sprite_group[i][2];
-                    ROM_DATA[0x05C97 + (i * 4) + 3] = random_sprite_group[i][3];
+                    WriteToRom(0x05C97 + (i * 4), random_sprite_group[i][0]);
+                    WriteToRom(0x05C97 + (i * 4) + 1, random_sprite_group[i][1]);
+                    WriteToRom(0x05C97 + (i * 4) + 2, random_sprite_group[i][2]);
+                    WriteToRom(0x05C97 + (i * 4) + 3, random_sprite_group[i][3]);
                 }
             }
         }
@@ -503,11 +503,11 @@ namespace Enemizer
             {
                 if (random_sprite_group_ow[i].Length != 0)
                 {
-                    
-                    ROM_DATA[0x05B97 + (i * 4)] = random_sprite_group_ow[i][0];
-                    ROM_DATA[0x05B97 + (i * 4) + 1] = random_sprite_group_ow[i][1];
-                    ROM_DATA[0x05B97 + (i * 4) + 2] = random_sprite_group_ow[i][2];
-                    ROM_DATA[0x05B97 + (i * 4) + 3] = random_sprite_group_ow[i][3];
+
+                    WriteToRom(0x05B97 + (i * 4), random_sprite_group_ow[i][0]);
+                    WriteToRom(0x05B97 + (i * 4) + 1, random_sprite_group_ow[i][1]);
+                    WriteToRom(0x05B97 + (i * 4) + 2, random_sprite_group_ow[i][2]);
+                    WriteToRom(0x05B97 + (i * 4) + 3, random_sprite_group_ow[i][3]);
 
                 }
             }
@@ -533,7 +533,7 @@ namespace Enemizer
                 {
                     if (((i - (j * 180)) < 38) || ((i - (j * 180)) >= 44))
                     {
-                        ROM_DATA[0xDD734 + i] = 0x00;
+                        WriteToRom(0xDD734 + i, 0x00);
                     }
                 }
 
@@ -544,7 +544,7 @@ namespace Enemizer
             int[] dark_rooms = new int[] { 11, 25, 33, 34, 50, 65, 66, 106, 146, 147, 153, 181, 186, 192, 208, 228, 229, 230, 231, 240, 241 };
             for(int i = 0;i<dark_rooms.Length;i++)
             {
-                ROM_DATA[0x120090 + ((dark_rooms[i] * 14))] = (byte)((ROM_DATA[0x120090 + ((dark_rooms[i] * 14))] & 0xFE));
+                WriteToRom(0x120090 + ((dark_rooms[i] * 14)), (byte)((ROM_DATA[0x120090 + ((dark_rooms[i] * 14))] & 0xFE)));
             }
 
         }
@@ -576,7 +576,7 @@ namespace Enemizer
             /*int[] dark_rooms = new int[] { 11, 25, 33, 34, 50, 65, 66, 106, 146, 147, 153, 181, 186, 192, 208, 228, 229, 230, 231, 240, 241 };
             for (int i = 0; i < dark_rooms.Length; i++)
             {
-                ROM_DATA[0x120090 + ((dark_rooms[i] * 14))] = (byte)((ROM_DATA[0x120090 + ((dark_rooms[i] * 14))] & 0xFE));
+                WriteToRom(0x120090 + ((dark_rooms[i] * 14)), (byte)((ROM_DATA[0x120090 + ((dark_rooms[i] * 14))] & 0xFE)));
             }*/
 
         }
@@ -716,8 +716,8 @@ namespace Enemizer
             b = (b / 8);
             short s = (short)(((b) << 10) | ((g) << 5) | ((r) << 0));
 
-            ROM_DATA[address] = (byte)(s & 0x00FF);
-            ROM_DATA[address + 1] = (byte)((s >> 8) & 0x00FF);
+            WriteToRom(address, (byte)(s & 0x00FF));
+            WriteToRom(address + 1, (byte)((s >> 8) & 0x00FF));
 
 
         }
@@ -731,7 +731,7 @@ namespace Enemizer
             {
                 if (j <= 0xD7 || j >= 0xE7)
                 {
-                    ROM_DATA[0x6B359 + j] = (byte)((ROM_DATA[0x6B359 + j] & 0xF1) + (rand.Next(15) & 0x0E));
+                    WriteToRom(0x6B359 + j, (byte)((ROM_DATA[0x6B359 + j] & 0xF1) + (rand.Next(15) & 0x0E)));
                 }
             }
             //sprite_palette_new();
@@ -1073,7 +1073,7 @@ namespace Enemizer
                         {
                             new_hp = 1;
                         }
-                        ROM_DATA[0x6B173 + j] = (byte)new_hp;
+                        WriteToRom(0x6B173 + j, (byte)new_hp);
                     }
                 }
             }
@@ -1086,12 +1086,12 @@ namespace Enemizer
                 byte[] musics = new byte[] { 0x03, 0x07, 0x0B, 0x0E, 0x10, 0x11, 0x12, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x22, 0x23};
                 byte m = (byte)rand.Next(musics.Length);
                 m = musics[m];
-                ROM_DATA[0x015592+i] = m;
+                WriteToRom(0x015592 +i, m);
             }
             byte[] originalmusicafter0x85 = new byte[] { 0x12, 0x1B, 0x12, 0xFF, 0xFF, 0xFF, 0x11, 0x11, 0x11, 0x11 };
             for (int i = 0; i < 0x0A; i++)
             {
-                ROM_DATA[0x015602 + i] = originalmusicafter0x85[i];
+                WriteToRom(0x015602 + i, originalmusicafter0x85[i]);
             }
         }
 
@@ -1103,7 +1103,7 @@ namespace Enemizer
 && j != 0x70 && j != 0xBD && j != 0xBE && j != 0xBF && j != 0xCB && j != 0xCE && j != 0xA2 && j != 0xA3 && j != 0x8D
 && j != 0x7A && j != 0x7B && j != 0xCC && j != 0xCD && j != 0xA4 && j != 0xD6 && j != 0xD7)
                 {
-                    ROM_DATA[0x6B266 + j] = (byte)(rand.Next(8));
+                    WriteToRom(0x6B266 + j, (byte)(rand.Next(8)));
                 }
             }
         }
@@ -1120,7 +1120,7 @@ namespace Enemizer
                        && j != 0x8D && j != 0x7A && j != 0x7B && j != 0xCC && j != 0xCD && j != 0xA4 && j != 0xD6 && j != 0xD7)
                     {
                         int new_hp = 1;
-                        ROM_DATA[0x6B173 + j] = (byte)new_hp;
+                        WriteToRom(0x6B173 + j, (byte)new_hp);
                     }
                 }
             }
@@ -1225,7 +1225,7 @@ namespace Enemizer
 
         public void move_header()
         {
-            ROM_DATA[0x0B5E7] = 0x24;//change room header bank to bank to 24
+            WriteToRom(0x0B5E7, 0x24);//change room header bank to bank to 24
 
             for (int i = 0; i < 320; i++)
             {
@@ -1239,7 +1239,7 @@ namespace Enemizer
 
                 for (int j = 0; j < 14; j++)
                 {
-                    ROM_DATA[0x120090 + (i * 14) + j] = ROM_DATA[pcadd + j];
+                    WriteToRom(0x120090 + (i * 14) + j, ROM_DATA[pcadd + j]);
                 }
             }
 
@@ -1248,8 +1248,8 @@ namespace Enemizer
             {
                 //0x0271E2  //rewrite all room header address
                 //0x120090
-                ROM_DATA[0x0271E2 + (i * 2)] = ((byte)pctosnes(0x120090 + (i * 14)));
-                ROM_DATA[0x0271E2 + (i * 2) + 1] = ((byte)(pctosnes((0x120090 + (i * 14))) >> 8));
+                WriteToRom(0x0271E2 + (i * 2), ((byte)pctosnes(0x120090 + (i * 14))));
+                WriteToRom(0x0271E2 + (i * 2) + 1, ((byte)(pctosnes((0x120090 + (i * 14))) >> 8)));
 
             }
         }
@@ -1282,8 +1282,8 @@ namespace Enemizer
 
         int[][] room_sprites = new int[292][];
 
-        //ROM_DATA[0x0271E2 + (i * 2)] = ((byte)pctosnes(0x120090 + (i* 14)));
-        //ROM_DATA[0x0271E2 + (i * 2) + 1] = ((byte)(pctosnes((0x120090 + (i* 14))) >> 8));
+        //WriteToRom(0x0271E2 + (i * 2), ((byte)pctosnes(0x120090 + (i* 14))));
+        //WriteToRom(0x0271E2 + (i * 2) + 1, ((byte)(pctosnes((0x120090 + (i* 14))) >> 8)));
         byte[][] shell_pointers = new byte[13][];
         /*int snes_shell_pointer_7 = 0;
         int snes_shell_pointer_200 = 0;
@@ -1389,7 +1389,7 @@ namespace Enemizer
             write_rom_data(0x0122000 + pos, room_200_shell);
             pos += room_200_shell.Length;
 
-            shell_pointers[2] = new byte[] { 0, 0, 0 }; //Skull woods empty pointers
+            shell_pointers[2] = new byte[] { 0x00, 0xA0, 0x24 };// 0, 0, 0 }; //Skull woods empty pointers
 
             shell_pointers[3] = pctosnesbytes(0x122000 + pos);
             write_rom_data(0x0122000 + pos, room_51_shell);
@@ -1436,9 +1436,9 @@ namespace Enemizer
         {
             int addr = pctosnes(pos);
 
-            ROM_DATA[2] = ((byte)addr);
-            ROM_DATA[1] = ((byte)(addr >> 8));
-            ROM_DATA[0] = ((byte)(addr >> 16));
+            //WriteToRom(2, ((byte)addr));
+            //WriteToRom(1, ((byte)(addr >> 8)));
+            //WriteToRom(0, ((byte)(addr >> 16)));
 
             return new byte[] { (byte)(addr >> 16), ((byte)(addr >> 8)), ((byte)addr) };
         }
@@ -1448,7 +1448,7 @@ namespace Enemizer
         {
             for(int i =0;i<data.Length;i++)
             {
-                ROM_DATA[pos + i] = data[i];
+                WriteToRom(pos + i, data[i]);
             }
         }
 

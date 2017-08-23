@@ -3,6 +3,7 @@
 !VRAM_LOW_REG       = $2116 ; VRAM Address Registers (Low)
 !VRAM_HIGH_REG      = $2117 ; VRAM Address Registers (High)
 !VRAM_WRITE_REG     = #$18  ; VRAM Data Write Registers (Low) (you always store it to the dest register so no need for the actual address)
+!VRAM_READ_REG      = #$39  ; VRAM Data Read Registers (Low) (you always store it to the "dest" register so no need for the actual address)
 
 !DMA0_CONTROL_REG   = $4300 ; DMA Control Register - channel 0
 !DMA0_DEST_REG      = $4301 ; DMA Destination Register
@@ -43,7 +44,7 @@ macro DMA_FROM_ROM_TO_VRAM(VRAM_HIGH,VRAM_LOW,SRC_BANK,SRC_HIGH,SRC_LOW,LENGTH_H
         ; Write to $2118 & $2119 - VRAM Data Write Registers (Low) & VRAM Data Write Registers (High)
         ; setting word write mode on DMA0_CONTROL_REG causes a write to $2118 and then $2119
         ; $21xx is assumed
-		LDA #$18
+		LDA !VRAM_WRITE_REG
 		STA !DMA0_DEST_REG
 		
 		; Read from $<SRC_BANK>:<SRC_HIGH><SRC_LOW>.
@@ -104,7 +105,7 @@ macro DMA_FROM_VRAM_TO_RAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGT
 
         ; Read from $2139 and $213A
         ; $21xx is assumed
-		LDA #$39
+		LDA !VRAM_READ_REG
 		STA !DMA0_DEST_REG
 		
 		; Write to $<DEST_BANK>:<DEST_HIGH><DEST_LOW>.
@@ -116,8 +117,8 @@ macro DMA_FROM_VRAM_TO_RAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGT
 		STA !DMA0_SRC_BANK_REG          ; set dest address bank byte
 
 		; total bytes to copy: #$<LENGTH_HIGH><LENGTH_LOW> bytes.
-		LDA <LENGTH_LOW>  : STA $4305   ; length low byte
-		LDA <LENGTH_HIGH> : STA $4306   ; length high byte
+		LDA <LENGTH_LOW>  : STA !DMA0_SIZE_LOW_REG   ; length low byte
+		LDA <LENGTH_HIGH> : STA !DMA0_SIZE_HIGH_REG   ; length high byte
 
 		!FORCE_VBLANK           ; blank screen
 
@@ -125,6 +126,7 @@ macro DMA_FROM_VRAM_TO_RAM(VRAM_HIGH,VRAM_LOW,DEST_BANK,DEST_HIGH,DEST_LOW,LENGT
         ;LDA.b $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
         ;LDA.b $213A ; need dummy read because reasons
         LDA.w $2139 ; need dummy read because reasons, not sure if this is strictly necessary or if just the read from $213A to get the fetch/increment going
+        LDA.w $2139 ; let's do 2 for fun
 
         ; start DMA on channel 0
 		LDA #$01                        ; channel select bitmask

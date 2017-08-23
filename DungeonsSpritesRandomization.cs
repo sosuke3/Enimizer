@@ -361,51 +361,51 @@ namespace Enemizer
                             {
                                 if (i == 0)
                                 {
-                                    ROM_DATA[room_sprites[room][i] - 2] = 0x18;
-                                    ROM_DATA[room_sprites[room][i] - 1] = 0x1A;
+                                    WriteToRom(room_sprites[room][i] - 2, 0x18);
+                                    WriteToRom(room_sprites[room][i] - 1, 0x1A);
                                 }
                             }*/
                             if (room == 151)
                             {
-                                ROM_DATA[room_sprites[room][i] - 2] = 0x15;
-                                ROM_DATA[room_sprites[room][i] - 1] = 0x07;
+                                WriteToRom(room_sprites[room][i] - 2, 0x15);
+                                WriteToRom(room_sprites[room][i] - 1, 0x07);
                             }
 
 
 
                             //if (fail) { continue; }
                             //Modify the sprite in the ROM / also set all overlord sprites on normal sprites to prevent any crashes
-                            ROM_DATA[room_sprites[room][i]] = selected_sprite;
-                            ROM_DATA[room_sprites[room][i] - 1] = (byte)(ROM_DATA[room_sprites[room][i] - 1] & 0x1F);//change overlord into normal sprite
+                            WriteToRom(room_sprites[room][i], selected_sprite);
+                            WriteToRom(room_sprites[room][i] - 1, (byte)(ROM_DATA[room_sprites[room][i] - 1] & 0x1F));//change overlord into normal sprite
                                                                                                                      //extra_roll = 0;
                         }
                     }
-                    
-                    ROM_DATA[0x120090 + ((room * 14) + 3)] = sprite_group; //set the room header sprite gfx
+
+                    WriteToRom(0x120090 + ((room * 14) + 3), sprite_group); //set the room header sprite gfx
 
                     break; //if everything is fine in that room then go to the next one
                 }
                 
             }
             //remove some sprite in thieve town1 to reduce lag
-            /*ROM_DATA[0x04E8AC] = 0x03;
-            ROM_DATA[0x04E8B8] = 0x03;
-            ROM_DATA[0x04E8C7] = 0x03;
+            /*WriteToRom(0x04E8AC, 0x03);
+            WriteToRom(0x04E8B8, 0x03);
+            WriteToRom(0x04E8C7, 0x03);
             //remove some sprite in thieve town2 to reduce lag
-            ROM_DATA[0x04E8F0] = 0x03;
-            ROM_DATA[0x04E8ED] = 0x03;
-            ROM_DATA[0x04E8D5] = 0x03;
-            ROM_DATA[0x04E8DB] = 0x03;
-            ROM_DATA[0x04E9F0] = 0x03;
+            WriteToRom(0x04E8F0, 0x03);
+            WriteToRom(0x04E8ED, 0x03);
+            WriteToRom(0x04E8D5, 0x03);
+            WriteToRom(0x04E8DB, 0x03);
+            WriteToRom(0x04E9F0, 0x03);
             */
             //remove key in skull wood to prevent a softlock
-            ROM_DATA[0x04DD74] = 0x16;
-            ROM_DATA[0x04DD75] = 0x05;
-            ROM_DATA[0x04DD76] = 0xE4;
+            WriteToRom(0x04DD74, 0x16);
+            WriteToRom(0x04DD75, 0x05);
+            WriteToRom(0x04DD76, 0xE4);
 
             //remove all sprite in the room before boss room in mire can cause problem with different boss in the room
             //NOT NEEDED ANYMORE
-            //ROM_DATA[0x04E591] = 0xFF;
+            //WriteToRom(0x04E591, 0xFF);
         }
 
         public List<byte> remove_unkillable_sprite(int room,List<byte> sprites)
