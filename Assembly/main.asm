@@ -15,13 +15,13 @@ lorom
 
 ;=Constants======================================================================
 
-!BUSHES_FLAG = "$408100"
-!BLIND_DOOR_FLAG = "$408101"
-!MOLDORM_EYES_FLAG = "$408102"
-!RANDOM_SPRITE_FLAG = "$408103"
-!AGAHNIM_FUN_BALLS = "$408104"
-!ENABLE_MIMIC_OVERRIDE = "$408105"
-!ENABLE_TERRORPIN_AI_FIX = "$408106"
+!BUSHES_FLAG = "$368100"
+!BLIND_DOOR_FLAG = "$368101"
+!MOLDORM_EYES_FLAG = "$368102"
+!RANDOM_SPRITE_FLAG = "$368103"
+!AGAHNIM_FUN_BALLS = "$368104"
+!ENABLE_MIMIC_OVERRIDE = "$368105"
+!ENABLE_TERRORPIN_AI_FIX = "$368106"
 
 ; Enemizer reserved memory
 ; $7F50B0 - $7F50BF - Downstream Reserved (Enemizer)
