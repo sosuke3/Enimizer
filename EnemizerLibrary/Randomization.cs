@@ -33,7 +33,7 @@ namespace EnemizerLibrary
                 seed = ResetEnemizerRom();
             }
             this.ROM_DATA.ExpandRom();
-            this.ROM_DATA.SetCharacterSelectScreenVersion();
+            // this.ROM_DATA.SetCharacterSelectScreenVersion();
             this.ROM_DATA.EnemizerSeed = seed;
             this.ROM_DATA.SetRomInfoOptionFlags(this.optionFlags);
 
